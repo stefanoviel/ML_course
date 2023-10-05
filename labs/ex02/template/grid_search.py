@@ -20,9 +20,48 @@ def get_best_parameters(w0, w1, losses):
     min_row, min_col = np.unravel_index(np.argmin(losses), losses.shape)
     return losses[min_row, min_col], w0[min_row], w1[min_col]
 
+def compute_loss(y, tx, w):
+    """Calculate the loss using either MSE or MAE.
 
-# ***************************************************
-# INSERT YOUR CODE HERE
-# TODO: Paste your implementation of grid_search
-#       here when it is done.
-# ***************************************************
+    Args:
+        y: numpy array of shape=(N, )
+        tx: numpy array of shape=(N,2)
+        w: numpy array of shape=(2,). The vector of model parameters.
+
+    Returns:
+        the value of the loss (a scalar), corresponding to the input parameters w.
+    """
+    pred = np.dot(tx, w)
+    return (1/(2*len(tx))) *  np.sum((y - pred)** 2)
+
+
+def grid_search(y, tx, grid_w0, grid_w1):
+    """Algorithm for grid search.
+
+    Args:
+        y: numpy array of shape=(N, )
+        tx: numpy array of shape=(N,2)
+        grid_w0: numpy array of shape=(num_grid_pts_w0, ). A 1D array containing num_grid_pts_w0 values of parameter w0 to be tested in the grid search.
+        grid_w1: numpy array of shape=(num_grid_pts_w1, ). A 1D array containing num_grid_pts_w1 values of parameter w1 to be tested in the grid search.
+
+    Returns:
+        losses: numpy array of shape=(num_grid_pts_w0, num_grid_pts_w1). A 2D array containing the loss value for each combination of w0 and w1
+    """
+
+    losses = np.zeros((len(grid_w0), len(grid_w1)))
+    rows, column = np.indices((len(grid_w0), len(grid_w1)))
+    for r, c in zip(rows.ravel(), column.ravel()): 
+        weights = np.array([grid_w0[r], grid_w1[c]])
+        losses[r][c] = compute_loss(y, tx, weights)
+    
+    
+    return losses
+
+def run_grid_search(y, tx): 
+    grid_w0, grid_w1 = generate_w(num_intervals=100)
+
+    grid_losses = grid_search(y, tx, grid_w0, grid_w1)
+
+    # Select the best combinaison
+    loss_star, w0_star, w1_star = get_best_parameters(grid_w0, grid_w1, grid_losses)
+    return loss_star, w0_star, w1_star
