@@ -240,5 +240,5 @@ def test_reg_logistic_regression_0_step(student_implementations, y, tx):
 
     np.testing.assert_allclose(loss, expected_loss, rtol=RTOL, atol=ATOL)
     np.testing.assert_allclose(w, expected_w, rtol=RTOL, atol=ATOL)
-    assert loss.ndim == 0
+    assert loss.ndim == 0   
     assert w.shape == expected_w.shape
